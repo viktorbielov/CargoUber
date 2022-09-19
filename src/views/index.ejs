@@ -1,0 +1,217 @@
+<!doctype html>
+<html lang="en">
+<%- include('partials/head');%>
+<body>
+<div class="container">
+    <%- include('partials/header'); %>
+    <% if (user) { %>
+        <section class="border-secondary border-bottom border-top p-3">
+            <% if (user.role === 'DRIVER') { %>
+                <div class="row d-flex justify-content-around flex-wrap">
+                    <div class="row px-3">
+                        <h2>My trucks:</h2>
+                    </div>
+                    <% if (user.trucks.length !== 0) {
+                            for (let truck of user.trucks) { %>
+                        <section class="shadow bg-light rounded p-3 m-3 position-relative" style="width: 30%">
+                            <div class="d-flex align-items-center gap-3 my-2">
+                                <% if (truck.assigned_to) { %>
+                                    <button class="btn btn-light text-success shadow" style="pointer-events: none">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
+                                             fill="currentColor"
+                                             class="bi bi-check-circle-fill" viewBox="0 0 16 16">
+                                            <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zm-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z"/>
+                                        </svg>
+                                    </button>
+                                    <p class="mb-0 text-success fw-bold">ASSIGNED</p>
+                                <% } else { %>
+                                    <form action="/assign/<%= truck._id %>" method="post">
+                                        <button class="btn btn-light text-white shadow"
+                                                style="<%= user.activeLoad ? 'pointer-events: none' : '' %>">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
+                                                 fill="currentColor"
+                                                 class="bi bi-check-circle-fill" viewBox="0 0 16 16">
+                                                <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zm-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z"/>
+                                            </svg>
+                                        </button>
+                                    </form>
+                                    <p class="mb-0 text-dark fw-bold">NOT ASSIGNED</p>
+                                <% } %>
+                            </div>
+                            <div class="row">
+                                <div class="my-2">
+                                    <p class="mb-0"><span class="fw-bold">Type: </span><%= truck.type %></p>
+                                    <p class="mb-0"><span
+                                                class="fw-bold">Status: </span><%= truck.status === 'IS' ? 'In service' : 'On load' %>
+                                    </p>
+                                    <p class="mb-0"><span
+                                                class="fw-bold">Created: </span><%= new Date(truck.created_date).toLocaleString() %>
+                                    </p>
+                                </div>
+                                <hr>
+                                <p class="mb-0"><span class="fw-bold">Payload: </span><%= truck.payload %></p>
+                                <p class="mb-0"><span class="fw-bold">Width: </span><%= truck.dimensions.width %></p>
+                                <p class="mb-0"><span class="fw-bold">Height: </span><%= truck.dimensions.height %></p>
+                                <p class="mb-0"><span class="fw-bold">Length: </span><%= truck.dimensions.length %></p>
+                            </div>
+                            <div class="position-absolute top-0 end-0 m-2">
+                                <form action="/delete/<%= truck._id %>" method="post"
+                                      style="<%= truck.status === 'IS' ? '' : 'pointer-events: none' %>">
+                                    <button class="btn btn-danger" type="submit">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
+                                             fill="currentColor" class="bi bi-trash-fill" viewBox="0 0 16 16">
+                                            <path d="M2.5 1a1 1 0 0 0-1 1v1a1 1 0 0 0 1 1H3v9a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V4h.5a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H10a1 1 0 0 0-1-1H7a1 1 0 0 0-1 1H2.5zm3 4a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 .5-.5zM8 5a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7A.5.5 0 0 1 8 5zm3 .5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 1 0z"/>
+                                        </svg>
+                                    </button>
+                                </form>
+                            </div>
+                        </section>
+                    <% }
+                    } else { %>
+                        <h5 class="text-center">You don't have trucks at the moment. To create a truck, click on the
+                            "Create truck" button at the top.</h5>
+                    <% } %>
+                </div>
+        </section>
+        <% if (user.activeLoad) { %>
+            <section class="my-2 mx-5">
+                <h2>Active load:</h2>
+                <section class="shadow rounded position-relative p-3">
+                    <div class="row">
+                        <div class="col">
+                            <p class="mb-0"><span class="fw-bold">Name: </span><%= user.activeLoad.name %></p>
+                            <p class="mb-0"><span class="fw-bold">Status: </span><%= user.activeLoad.status %></p>
+                            <p class="mb-0"><span
+                                        class="fw-bold">State: </span><%= user.activeLoad.state ? user.activeLoad.state : 'En route to pick up' %>
+                            </p>
+                            <p class="mb-0"><span
+                                        class="fw-bold">Pickup address: </span><%= user.activeLoad.pickup_address %>
+                            </p>
+                            <p class="mb-0"><span
+                                        class="fw-bold">Delivery address: </span><%= user.activeLoad.delivery_address %>
+                            </p>
+                        </div>
+                        <div class="col">
+                            <p class="mb-0"><span class="fw-bold">Payload: </span><%= user.activeLoad.payload %></p>
+                            <p class="mb-0"><span class="fw-bold">Width: </span><%= user.activeLoad.dimensions.width %>
+                            </p>
+                            <p class="mb-0"><span
+                                        class="fw-bold">Length: </span><%= user.activeLoad.dimensions.length %></p>
+                            <p class="mb-0"><span
+                                        class="fw-bold">Height: </span><%= user.activeLoad.dimensions.height %></p>
+                        </div>
+                        <hr>
+                        <p class="mb-0"><span
+                                    class="fw-bold">Created: </span><%= new Date(user.activeLoad.created_date).toLocaleString() %>
+                        </p>
+                    </div>
+                    <div class="position-absolute top-0 end-0">
+                        <form action="/iterate" method="post">
+                            <button type="submit" class="btn btn-success m-3">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                                     class="bi bi-arrow-right-circle-fill" viewBox="0 0 16 16">
+                                    <path d="M8 0a8 8 0 1 1 0 16A8 8 0 0 1 8 0zM4.5 7.5a.5.5 0 0 0 0 1h5.793l-2.147 2.146a.5.5 0 0 0 .708.708l3-3a.5.5 0 0 0 0-.708l-3-3a.5.5 0 1 0-.708.708L10.293 7.5H4.5z"/>
+                                </svg>
+                                Next state
+                            </button>
+                        </form>
+                    </div>
+                </section>
+            </section>
+        <% } %>
+        <% if (user.loads.length !== 0) { %>
+            <section class="my-4 mx-5">
+                <h2 class="mt-2">My loads:</h2>
+                <% for (let load of user.loads) {
+                if (load.status === 'SHIPPED') { %>
+                    <section class="shadow rounded position-relative  p-3">
+                        <div class="row">
+                            <div class="col">
+                                <p class="mb-0"><span class="fw-bold">Name: </span><%= load.name %></p>
+                                <p class="mb-0"><span class="fw-bold">Status: </span><%= load.status %></p>
+                                <p class="mb-0"><span
+                                            class="fw-bold">State: </span><%= load.state ? load.state : 'En route to pick up' %>
+                                </p>
+                                <p class="mb-0"><span class="fw-bold">Pickup address: </span><%= load.pickup_address %>
+                                </p>
+                                <p class="mb-0"><span
+                                            class="fw-bold">Delivery address: </span><%= load.delivery_address %></p>
+                            </div>
+                            <div class="col">
+                                <p class="mb-0"><span class="fw-bold">Payload: </span><%= load.payload %></p>
+                                <p class="mb-0"><span class="fw-bold">Width: </span><%= load.dimensions.width %></p>
+                                <p class="mb-0"><span class="fw-bold">Length: </span><%= load.dimensions.length %></p>
+                                <p class="mb-0"><span class="fw-bold">Height: </span><%= load.dimensions.height %></p>
+                            </div>
+                            <hr>
+                            <p class="mb-0"><span
+                                        class="fw-bold">Created: </span><%= new Date(load.created_date).toLocaleString() %>
+                            </p>
+                        </div>
+                    </section>
+                <% }} %>
+            </section>
+        <% } %>
+        <% } else { %>
+            <div class="row d-flex flex-column gap-3 align-items-center">
+                <div class="row px-3">
+                    <h2>My loads:</h2>
+                </div>
+                <% if (user.loads.length !== 0) {
+                        for (let load of user.loads) { %>
+                    <section class="shadow bg-light rounded position-relative p-3" style="width: 90%">
+                        <div class="row">
+                            <div class="col">
+                                <p class="mb-0"><span class="fw-bold">Name: </span><%= load.name %></p>
+                                <p class="mb-0"><span class="fw-bold">Status: </span><%= load.status %></p>
+                                <p class="mb-0"><span
+                                            class="fw-bold">State: </span><%= load.state ? load.state : 'En route to pick up' %>
+                                </p>
+                                <p class="mb-0"><span class="fw-bold">Pickup address: </span><%= load.pickup_address %>
+                                </p>
+                                <p class="mb-0"><span
+                                            class="fw-bold">Delivery address: </span><%= load.delivery_address %></p>
+                            </div>
+                            <div class="col">
+                                <p class="mb-0"><span class="fw-bold">Payload: </span><%= load.payload %></p>
+                                <p class="mb-0"><span class="fw-bold">Width: </span><%= load.dimensions.width %></p>
+                                <p class="mb-0"><span class="fw-bold">Length: </span><%= load.dimensions.length %></p>
+                                <p class="mb-0"><span class="fw-bold">Height: </span><%= load.dimensions.height %></p>
+                            </div>
+                            <hr>
+                            <p class="mb-0"><span
+                                        class="fw-bold">Created: </span><%= new Date(load.created_date).toLocaleString() %>
+                            </p>
+                        </div>
+                        <% if (load.status === 'NEW')  { %>
+                            <div class="d-flex gap-2 position-absolute top-0 end-0 m-3">
+                                <form method="post" action="/delete-load/<%= load._id %>">
+                                    <button class="btn btn-danger" type="submit">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
+                                             fill="currentColor" class="bi bi-trash-fill" viewBox="0 0 16 16">
+                                            <path d="M2.5 1a1 1 0 0 0-1 1v1a1 1 0 0 0 1 1H3v9a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V4h.5a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H10a1 1 0 0 0-1-1H7a1 1 0 0 0-1 1H2.5zm3 4a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 .5-.5zM8 5a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7A.5.5 0 0 1 8 5zm3 .5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 1 0z"/>
+                                        </svg>
+                                    </button>
+                                </form>
+                                <form method="post" action="/post-load/<%= load._id %>">
+                                    <button class="btn btn-secondary" type="submit">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
+                                             fill="currentColor" class="bi bi-box2" viewBox="0 0 16 16">
+                                            <path d="M2.95.4a1 1 0 0 1 .8-.4h8.5a1 1 0 0 1 .8.4l2.85 3.8a.5.5 0 0 1 .1.3V15a1 1 0 0 1-1 1H1a1 1 0 0 1-1-1V4.5a.5.5 0 0 1 .1-.3L2.95.4ZM7.5 1H3.75L1.5 4h6V1Zm1 0v3h6l-2.25-3H8.5ZM15 5H1v10h14V5Z"/>
+                                        </svg>
+                                        POST
+                                    </button>
+                                </form>
+                            </div>
+                        <% } %>
+                    </section>
+                <% } %>
+            </div>
+            <% } %>
+        <% } %>
+    <% } %>
+    </section>
+</div>
+<script src="bootstrap.bundle.min.js"></script>
+</body>
+</html>
