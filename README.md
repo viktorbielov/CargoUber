@@ -23,7 +23,6 @@ To start a project in a develeoper mode type this command:
 npm run build
 ```
 
-Server starts on a 8080 port by default. You can change it in .env file if you want. The database is already linked up.
+Server starts on a 8080 port by default. You can change it in .env file if you want. The database is already linked up.__
 
-```
 Enjoy!
